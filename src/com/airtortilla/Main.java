@@ -4,7 +4,6 @@ import com.airtortilla.algoritmos.OrdenadorMergeSort;
 import com.airtortilla.io.EscritorCsv;
 import com.airtortilla.io.LectorCsv;
 import com.airtortilla.model.Reserva;
-import com.airtortilla.service.FiltroPaisService;
 import com.airtortilla.service.IdentificadorService;
 import com.airtortilla.test.GeneradorDatosPrueba;
 
@@ -12,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +26,6 @@ public class Main {
         LectorCsv lectorCsv = new LectorCsv();
         EscritorCsv escritorCsv = new EscritorCsv();
         IdentificadorService identificadorService = new IdentificadorService();
-        FiltroPaisService filtroPaisService = new FiltroPaisService();
 
         boolean salir = false;
         while (!salir) {
