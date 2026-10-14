@@ -1,0 +1,12 @@
+*.csv
+*.class
+bin/
+target/
+out/
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.DS_Store
