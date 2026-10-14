@@ -6,11 +6,14 @@ import com.airtortilla.io.LectorCsv;
 import com.airtortilla.model.Reserva;
 import com.airtortilla.service.IdentificadorService;
 import com.airtortilla.test.GeneradorDatosPrueba;
+import com.airtortilla.web.ServidorWeb;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +23,18 @@ public class Main {
 
     private static final String FICHERO_ENTRADA_DEFECTO = "AirTortilla_Reservas_2020.csv";
     private static final String CARPETA_SALIDA = "salida";
+    private static final int PUERTO_WEB = 8080;
 
     public static void main(String[] args) {
+        ServidorWeb servidorWeb = new ServidorWeb(PUERTO_WEB);
+        try {
+            servidorWeb.iniciar();
+            System.out.println("Servidor web iniciado en: http://localhost:" + PUERTO_WEB);
+            abrirNavegador("http://localhost:" + PUERTO_WEB);
+        } catch (IOException e) {
+            System.err.println("No se pudo iniciar el servidor web: " + e.getMessage());
+        }
+
         Scanner scanner = new Scanner(System.in);
         LectorCsv lectorCsv = new LectorCsv();
         EscritorCsv escritorCsv = new EscritorCsv();
@@ -46,27 +59,42 @@ public class Main {
                     generarFicheroPruebas();
                     break;
                 case "5":
+                    abrirNavegador("http://localhost:" + PUERTO_WEB);
+                    break;
+                case "6":
                     salir = true;
+                    servidorWeb.detener();
                     System.out.println("\nGracias por utilizar el sistema AirTortilla. Finalizando aplicacion.");
                     break;
                 default:
-                    System.out.println("\nOpcion no valida. Seleccione una opcion del 1 al 5.");
+                    System.out.println("\nOpcion no valida. Seleccione una opcion del 1 al 6.");
                     break;
             }
         }
         scanner.close();
     }
 
+    private static void abrirNavegador(String url) {
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(url));
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     private static void mostrarMenuPrincipal() {
         System.out.println("\n=======================================================");
         System.out.println("          SISTEMA DE RESERVAS AIRTORTILLA              ");
+        System.out.println("  [WEB] Aplicacion activa en: http://localhost:" + PUERTO_WEB + "    ");
         System.out.println("=======================================================");
         System.out.println("1. Ejecutar procesamiento en MODALIDAD TOTAL");
         System.out.println("2. Ejecutar procesamiento en MODALIDAD LINEA A LINEA");
         System.out.println("3. Consultar archivos generados");
         System.out.println("4. Generar/Restaurar datos de prueba CSV");
-        System.out.println("5. Salir");
-        System.out.print("Seleccione una opcion (1-5): ");
+        System.out.println("5. Abrir interfaz WEB en el navegador");
+        System.out.println("6. Salir");
+        System.out.print("Seleccione una opcion (1-6): ");
     }
 
     private static void ejecutarModalidadTotal(Scanner scanner, LectorCsv lector, EscritorCsv escritor, IdentificadorService idService) {

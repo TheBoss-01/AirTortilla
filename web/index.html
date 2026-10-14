@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AirTortilla - Sistema de Gestión y Particionado de Reservas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="contenedor-principal">
+    <header class="cabecera-sistema">
+      <div class="marca-aerolinea">
+        <div class="icono-avion">✈</div>
+        <div>
+          <h1 class="titulo-sistema">AirTortilla Booking System</h1>
+          <p class="subtitulo-sistema">Sistema de Particionado por País de Destino y Algoritmia O(n log n)</p>
+        </div>
+      </div>
+      <div class="panel-estado-servidor">
+        <span class="punto-estado activo"></span>
+        <span id="textoEstadoConexion">Servidor Conectado</span>
+        <button id="btnGenerarPruebas" class="btn-secundario">Restaurar CSV Prueba</button>
+      </div>
+    </header>
+
+    <main class="grid-principal">
+      <section class="tarjeta-control panel-configuracion">
+        <h2 class="titulo-seccion">1. Modalidad de Procesamiento</h2>
+        <div class="selector-modalidad">
+          <button id="btnModoTotal" class="btn-modo activo">
+            <span class="icono-modo">⚡</span>
+            <div class="info-modo">
+              <strong>Modalidad Total</strong>
+              <small>Carga O(n), MergeSort O(n log n) y exportación masiva</small>
+            </div>
+          </button>
+          <button id="btnModoLinea" class="btn-modo">
+            <span class="icono-modo">⏱</span>
+            <div class="info-modo">
+              <strong>Modalidad Línea a Línea</strong>
+              <small>Procesamiento paso a paso e interactivo en tiempo real</small>
+            </div>
+          </button>
+        </div>
+
+        <div class="panel-acciones-principales">
+          <button id="btnCrearFicheroPais" class="btn-accion-primario">
+            <span class="icono-accion">📁</span>
+            <span>Crear Fichero x País Destino</span>
+          </button>
+        </div>
+
+        <div id="controlesPasoAPaso" class="controles-paso oculta">
+          <div class="barra-paso">
+            <button id="btnPasoAnterior" class="btn-control" disabled>⏮ Anterior</button>
+            <button id="btnPasoSiguiente" class="btn-control btn-destacado">Siguiente Registro ⏭</button>
+            <button id="btnAutoPlay" class="btn-control">▶ Auto</button>
+            <button id="btnReiniciarPaso" class="btn-control">↺ Reiniciar</button>
+          </div>
+          <div class="indicador-progreso-linea">
+            <span id="textoProgresoLinea">Registro 0 de 0</span>
+            <div class="barra-progreso-fondo">
+              <div id="barraProgresoRelleno" class="barra-progreso-relleno"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tarjeta-control panel-feedback">
+        <div class="cabecera-feedback">
+          <h2 class="titulo-seccion">Feedback Operación</h2>
+          <span id="badgeEstadoProceso" class="badge-estado badge-espera">En Espera</span>
+        </div>
+
+        <div class="metricas-resumen">
+          <div class="caja-metrica">
+            <span class="etiqueta-metrica">Reservas Totales</span>
+            <span id="metricaTotal" class="valor-metrica">0</span>
+          </div>
+          <div class="caja-metrica">
+            <span class="etiqueta-metrica">Grupos Coincidentes</span>
+            <span id="metricaCoincidencias" class="valor-metrica">0</span>
+          </div>
+          <div class="caja-metrica">
+            <span class="etiqueta-metrica">Ficheros Creados</span>
+            <span id="metricaFicheros" class="valor-metrica">0</span>
+          </div>
+          <div class="caja-metrica">
+            <span class="etiqueta-metrica">Algoritmo</span>
+            <span class="valor-metrica texto-acento">MergeSort O(n log n)</span>
+          </div>
+        </div>
+
+        <div id="contenedorDetalleGrupos" class="bloque-detalle-coincidencias oculta">
+          <h3 class="subtitulo-bloque">Localizadores para Pasajeros Coincidentes (Mismo Nombre, Origen y Destino)</h3>
+          <div id="listaGruposCoincidentes" class="lista-grupos"></div>
+        </div>
+
+        <div class="consola-registro">
+          <div class="cabecera-consola">
+            <span>Terminal de Operación</span>
+            <button id="btnLimpiarConsola" class="btn-texto">Limpiar</button>
+          </div>
+          <div id="cuerpoConsola" class="cuerpo-consola">
+            <div class="linea-consola info">[SISTEMA] Bienvenido a AirTortilla Booking System. Seleccione una modalidad y pulse "Crear Fichero x País Destino".</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tarjeta-control panel-archivos">
+        <div class="cabecera-archivos">
+          <h2 class="titulo-seccion">Ficheros Generados (AirTortilla_XX_YYYY_MM_DD.csv)</h2>
+          <button id="btnRefrescarArchivos" class="btn-secundario">Actualizar Lista</button>
+        </div>
+        <div id="rejillaArchivos" class="rejilla-archivos">
+          <div class="mensaje-vacio">No hay ficheros generados todavía. Ejecute el procesamiento para crearlos.</div>
+        </div>
+      </section>
+
+      <section class="tarjeta-control panel-tabla-reservas">
+        <h2 class="titulo-seccion">Registros de Reservas en Memoria</h2>
+        <div class="contenedor-tabla-scroll">
+          <table class="tabla-reservas">
+            <thead>
+              <tr>
+                <th>ID Unívoco</th>
+                <th>Localizador</th>
+                <th>Pasajero</th>
+                <th>Ruta (Origen ➔ Destino)</th>
+                <th>País Destino (ISO)</th>
+                <th>Fecha de Reserva</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpoTablaReservas">
+              <tr>
+                <td colspan="6" class="celda-vacia">Sin reservas cargadas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modalPrevisualizacion" class="modal-fondo oculta">
+    <div class="modal-contenido">
+      <div class="modal-cabecera">
+        <h3 id="modalTituloArchivo">Previsualización CSV</h3>
+        <button id="btnCerrarModal" class="btn-cerrar">&times;</button>
+      </div>
+      <pre id="modalCuerpoCsv" class="modal-codigo"></pre>
+      <div class="modal-pie">
+        <a id="btnDescargarCsvModal" class="btn-accion-primario" href="#" download>Descargar Archivo</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
