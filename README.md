@@ -55,24 +55,6 @@ Para la ordenación de las entidades `Reserva` se implementa MergeSort (Ordenaci
 
 ## 4. Diagrama de Flujo del Sistema
 
-```mermaid
-flowchart TD
-    A["Fichero CSV Original: AirTortilla_Reservas.csv"] --> B["Lector y Validador CSV"]
-    B --> C["Parseo a Objetos Reserva en Memoria"]
-    C --> D["Generador de IDs Unívocos"]
-    D --> E["Detección de Coincidencias: Nombre + Origen + Destino"]
-    E --> F["Asignación de Localizadores a Pasajeros Coincidentes"]
-    F --> G["Ordenación MergeSort O(n log n)"]
-    G --> H{"Selector de Modalidad"}
-    H -->|"Ejecución Total"| I["Filtro por País de Destino ISO XX y Fecha"]
-    H -->|"Ejecución Línea a Línea"| J["Procesamiento y Feedback por Registro"]
-    J --> I
-    I --> K["Escritura de Ficheros CSV: AirTortilla_XX_YYYY_MM_DD.csv"]
-    K --> L["Feedback de Operación en Interfaz"]
-```
-
-### Diagrama Visual de Arquitectura
-
 ![Diagrama de Flujo AirTortilla](docs/diagrama_flujo.png)
 
 ---
