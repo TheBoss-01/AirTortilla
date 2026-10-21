@@ -71,11 +71,9 @@ flowchart TD
     K --> L["Feedback de Operación en Interfaz"]
 ```
 
-> **Espacio reservado para diagrama visual:**
-> 
-> *Inserte aquí la imagen generada desde Draw.io / Excalidraw:*
-> 
-> `![Diagrama de Flujo AirTortilla](docs/diagrama_flujo.png)`
+### Diagrama Visual de Arquitectura
+
+![Diagrama de Flujo AirTortilla](docs/diagrama_flujo.png)
 
 ---
 
