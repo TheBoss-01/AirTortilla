@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AirTortilla - Sistema de Gestión y Particionado de Reservas</title>
+  <title>AirTortilla - Sistema de Gestión, Persistencia Relacional y Control de Acceso</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,22 +11,58 @@
 </head>
 <body>
   <div class="contenedor-principal">
+    <!-- CABECERA PRINCIPAL CON SESION Y ESTADO BD -->
     <header class="cabecera-sistema">
       <div class="marca-aerolinea">
         <div class="icono-avion">✈</div>
         <div>
           <h1 class="titulo-sistema">AirTortilla Booking System</h1>
-          <p class="subtitulo-sistema">Sistema de Particionado por País de Destino y Algoritmia O(n log n)</p>
+          <p class="subtitulo-sistema">Entrega 2: Migración Relacional, Autenticación (US1), Alta Usuarios (US2) y Auditoría (US3)</p>
         </div>
       </div>
       <div class="panel-estado-servidor">
-        <span class="punto-estado activo"></span>
-        <span id="textoEstadoConexion">Servidor Conectado</span>
+        <!-- Indicador de base de datos relacional -->
+        <div class="info-usuario-activo" title="Base de Datos Relacional SQLite activa">
+          <span class="punto-estado activo"></span>
+          <span>BD Relacional: <strong>SQLite Conectada</strong></span>
+        </div>
+
+        <!-- Seccion de Autenticacion (US1) -->
+        <div id="panelSesionUsuario" class="panel-auth-header">
+          <button id="btnAbrirLogin" class="btn-accion-primario" style="padding: 8px 16px; font-size: 0.88rem;">
+            <span>🔑 Iniciar Sesión (US1)</span>
+          </button>
+          <div id="infoUsuarioConectado" class="info-usuario-activo oculta">
+            <span id="badgeRolUsuario" class="badge-rol badge-rol-empleado">EMPLEADO</span>
+            <span id="nombreUsuarioConectado">carlos</span>
+            <button id="btnCerrarSesion" class="btn-secundario" style="padding: 6px 12px; font-size: 0.8rem;">Salir</button>
+          </div>
+        </div>
+
         <button id="btnGenerarPruebas" class="btn-secundario">Restaurar CSV Prueba</button>
       </div>
     </header>
 
-    <main class="grid-principal">
+    <!-- BARRA DE PESTAÑAS DE NAVEGACION -->
+    <nav class="barra-navegacion-pestanas">
+      <button id="pestanaReservas" class="btn-pestana activo">
+        <span>✈ Procesamiento de Reservas</span>
+      </button>
+      <button id="pestanaUsuarios" class="btn-pestana">
+        <span>👥 Gestión de Usuarios (US2)</span>
+      </button>
+      <button id="pestanaAuditoria" class="btn-pestana">
+        <span>🛡 Trazabilidad y Seguridad (US3)</span>
+      </button>
+      <button id="pestanaBdRelacional" class="btn-pestana">
+        <span>🗄 Migración Relacional (Legislación)</span>
+      </button>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- VISTA 1: PROCESAMIENTO DE RESERVAS (ENTREGA 1 + RELACIONAL)            -->
+    <!-- ===================================================================== -->
+    <main id="vistaReservas" class="grid-principal">
       <section class="tarjeta-control panel-configuracion">
         <h2 class="titulo-seccion">1. Modalidad de Procesamiento</h2>
         <div class="selector-modalidad">
@@ -34,7 +70,7 @@
             <span class="icono-modo">⚡</span>
             <div class="info-modo">
               <strong>Modalidad Total</strong>
-              <small>Carga O(n), MergeSort O(n log n) y exportación masiva</small>
+              <small>Carga O(n), MergeSort O(n log n), particionado y persistencia en BD</small>
             </div>
           </button>
           <button id="btnModoLinea" class="btn-modo">
@@ -89,8 +125,8 @@
             <span id="metricaFicheros" class="valor-metrica">0</span>
           </div>
           <div class="caja-metrica">
-            <span class="etiqueta-metrica">Algoritmo</span>
-            <span class="valor-metrica texto-acento">MergeSort O(n log n)</span>
+            <span class="etiqueta-metrica">Persistencia Relacional</span>
+            <span class="valor-metrica texto-acento">SQLite / SQL</span>
           </div>
         </div>
 
@@ -101,11 +137,11 @@
 
         <div class="consola-registro">
           <div class="cabecera-consola">
-            <span>Terminal de Operación</span>
+            <span>Terminal de Operación y Trazabilidad</span>
             <button id="btnLimpiarConsola" class="btn-texto">Limpiar</button>
           </div>
           <div id="cuerpoConsola" class="cuerpo-consola">
-            <div class="linea-consola info">[SISTEMA] Bienvenido a AirTortilla Booking System. Seleccione una modalidad y pulse "Crear Fichero x País Destino".</div>
+            <div class="linea-consola info">[SISTEMA] Bienvenido a AirTortilla. Inicie sesión para acceder con su rol (Empleado o Administrador).</div>
           </div>
         </div>
       </section>
@@ -121,7 +157,13 @@
       </section>
 
       <section class="tarjeta-control panel-tabla-reservas">
-        <h2 class="titulo-seccion">Registros de Reservas en Memoria</h2>
+        <div class="cabecera-archivos">
+          <h2 class="titulo-seccion">Registros de Reservas</h2>
+          <div style="display:flex; gap: 8px;">
+            <button id="btnVerReservasCsv" class="btn-secundario" style="font-size:0.8rem;">Origen CSV</button>
+            <button id="btnVerReservasBd" class="btn-secundario" style="font-size:0.8rem;">Origen BD Relacional</button>
+          </div>
+        </div>
         <div class="contenedor-tabla-scroll">
           <table class="tabla-reservas">
             <thead>
@@ -143,8 +185,218 @@
         </div>
       </section>
     </main>
+
+    <!-- ===================================================================== -->
+    <!-- VISTA 2: GESTION DE USUARIOS (US2 - ADMINISTRADOR)                    -->
+    <!-- ===================================================================== -->
+    <main id="vistaUsuarios" class="grid-principal oculta">
+      <section class="tarjeta-control" style="grid-column: 1 / -1;">
+        <div class="cabecera-feedback">
+          <div>
+            <h2 class="titulo-seccion">Gestión de Usuarios de la Compañía (US2)</h2>
+            <p style="color: var(--color-texto-secundario); font-size: 0.9rem; margin-top: 4px;">
+              "Como Administrador de Sistemas quiero poder dar de alta usuarios para garantizar la seguridad interna de la aplicación"
+            </p>
+          </div>
+          <span id="badgePermisoAdmin" class="badge-rol badge-rol-admin">Modo Administrador</span>
+        </div>
+
+        <div id="avisoNoAdminUsuarios" class="aviso-seguridad-admin oculta">
+          <span>⚠️ <strong>Acceso Restringido:</strong> Solo los usuarios con rol de <strong>Administrador de Sistemas</strong> pueden dar de alta nuevos usuarios y ver la lista completa. Inicie sesión con la cuenta <code>admin</code>.</span>
+        </div>
+
+        <div id="contenidoAdminUsuarios">
+          <h3 class="subtitulo-bloque" style="margin-top: 18px;">Dar de Alta Nuevo Usuario</h3>
+          <form id="formAltaUsuario" class="formulario-grid" onsubmit="return false;">
+            <div class="grupo-campo">
+              <label for="nuevoUsername">Nombre de Usuario (Username):</label>
+              <input type="text" id="nuevoUsername" class="input-estilizado" placeholder="ej. marta.gomez" required>
+            </div>
+            <div class="grupo-campo">
+              <label for="nuevoPassword">Contraseña:</label>
+              <input type="password" id="nuevoPassword" class="input-estilizado" placeholder="Mínimo 4 caracteres" required>
+            </div>
+            <div class="grupo-campo">
+              <label for="nuevoRol">Rol en el Sistema:</label>
+              <select id="nuevoRol" class="select-estilizado">
+                <option value="EMPLEADO">EMPLEADO (Acceso operativo a reservas)</option>
+                <option value="ADMIN">ADMIN (Administrador de Sistemas)</option>
+              </select>
+            </div>
+            <div class="grupo-campo">
+              <label for="nuevoNombreCompleto">Nombre Completo:</label>
+              <input type="text" id="nuevoNombreCompleto" class="input-estilizado" placeholder="ej. Marta Gómez López" required>
+            </div>
+            <div class="grupo-campo" style="justify-content: flex-end;">
+              <label>&nbsp;</label>
+              <button type="button" id="btnGuardarUsuario" class="btn-accion-primario" style="height: 42px;">
+                <span>➕ Registrar Usuario</span>
+              </button>
+            </div>
+          </form>
+
+          <h3 class="subtitulo-bloque" style="margin-top: 32px;">Usuarios Registrados en la Base de Datos Relacional</h3>
+          <div class="contenedor-tabla-scroll" style="margin-top: 12px;">
+            <table class="tabla-reservas">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Rol</th>
+                  <th>Nombre Completo</th>
+                  <th>Fecha de Alta</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="cuerpoTablaUsuarios">
+                <tr>
+                  <td colspan="6" class="celda-vacia">Cargando usuarios...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- VISTA 3: TRAZABILIDAD Y AUDITORIA (US3 - ADMINISTRADOR)               -->
+    <!-- ===================================================================== -->
+    <main id="vistaAuditoria" class="grid-principal oculta">
+      <section class="tarjeta-control" style="grid-column: 1 / -1;">
+        <div class="cabecera-feedback">
+          <div>
+            <h2 class="titulo-seccion">Trazabilidad y Bitácora de Auditoría (US3)</h2>
+            <p style="color: var(--color-texto-secundario); font-size: 0.9rem; margin-top: 4px;">
+              "Como Administrador de Sistemas Quiero mantener la trazabilidad de las modificaciones para mantener las buenas prácticas de seguridad"
+            </p>
+          </div>
+          <button id="btnRefrescarAuditoria" class="btn-secundario">🔄 Refrescar Bitácora</button>
+        </div>
+
+        <div id="avisoNoAdminAuditoria" class="aviso-seguridad-admin oculta">
+          <span>⚠️ <strong>Acceso Restringido:</strong> La bitácora de trazabilidad es confidencial y solo accesible por un <strong>Administrador de Sistemas</strong>. Inicie sesión como <code>admin</code>.</span>
+        </div>
+
+        <div id="contenidoAdminAuditoria">
+          <div class="contenedor-tabla-scroll" style="margin-top: 16px;">
+            <table class="tabla-reservas">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha y Hora</th>
+                  <th>Usuario</th>
+                  <th>Acción</th>
+                  <th>Entidad</th>
+                  <th>Detalles de la Operación</th>
+                  <th>Origen</th>
+                </tr>
+              </thead>
+              <tbody id="cuerpoTablaAuditoria">
+                <tr>
+                  <td colspan="7" class="celda-vacia">Cargando registros de auditoría...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- VISTA 4: MIGRACION RELACIONAL (LEGISLACION AIRTORTILLA)               -->
+    <!-- ===================================================================== -->
+    <main id="vistaBdRelacional" class="grid-principal oculta">
+      <section class="tarjeta-control" style="grid-column: 1 / -1;">
+        <div class="cabecera-feedback">
+          <div>
+            <h2 class="titulo-seccion">Migración a Base de Datos Relacional</h2>
+            <p style="color: var(--color-texto-secundario); font-size: 0.9rem; margin-top: 4px;">
+              Cumplimiento normativo y legislativo: persistencia de datos en motor SQL relacional con integridad referencial.
+            </p>
+          </div>
+          <button id="btnEjecutarMigracionBd" class="btn-accion-primario">
+            <span>⚡ Sincronizar CSV ➔ Base de Datos Relacional</span>
+          </button>
+        </div>
+
+        <div class="metricas-resumen" style="margin-top: 20px;">
+          <div class="caja-metrica">
+            <span class="etiqueta-metrica">Motor Relacional</span>
+            <span class="valor-metrica texto-acento">SQLite 3 / JDBC</span>
+          </div>
+          <div class="caja-metrica">
+            <span class="etiqueta-metrica">Archivo de Consultas SQL</span>
+            <span class="valor-metrica" style="font-size: 1.1rem; color: var(--color-primario);">sql/consultas.sql</span>
+          </div>
+          <div class="caja-metrica">
+            <span class="etiqueta-metrica">Tablas Creadas</span>
+            <span class="valor-metrica">usuarios, reservas, auditoria</span>
+          </div>
+          <div class="caja-metrica">
+            <span class="etiqueta-metrica">Despliegue Contenedores</span>
+            <span class="valor-metrica texto-acento">Docker / Docker-Compose</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h3 class="subtitulo-bloque">Contenido del Archivo de Consultas Relacionales (<code>sql/consultas.sql</code>)</h3>
+          <pre class="modal-codigo" style="max-height: 380px; border-radius: 8px; border: 1px solid var(--borde-tarjeta);">
+-- CONSULTAS PRINCIPALES DE LA ENTREGA 2 (disponibles en sql/consultas.sql)
+1. US1 Login: SELECT * FROM usuarios WHERE username = ? AND password_hash = ? AND activo = 1;
+2. US2 Alta:  INSERT INTO usuarios (username, password_hash, rol, nombre_completo, activo) VALUES (?, ?, ?, ?, 1);
+3. US3 Log:   INSERT INTO auditoria (usuario, accion, entidad, detalles, ip_origen) VALUES (?, ?, ?, ?, ?);
+4. Migración: INSERT OR REPLACE INTO reservas (id, nombre_pasajero, origen, destino, codigo_pais_destino, fecha_reserva, localizador) VALUES (...);
+5. Listado:   SELECT * FROM reservas ORDER BY fecha_reserva ASC, codigo_pais_destino ASC, id ASC;
+          </pre>
+        </div>
+      </section>
+    </main>
   </div>
 
+  <!-- ======================================================================= -->
+  <!-- MODAL DE INICIO DE SESION (US1 - EMPLEADO / ADMIN)                     -->
+  <!-- ======================================================================= -->
+  <div id="modalLogin" class="modal-fondo oculta">
+    <div class="modal-contenido" style="max-width: 480px;">
+      <div class="modal-cabecera">
+        <h3>Acceso al Sistema AirTortilla (US1)</h3>
+        <button id="btnCerrarModalLogin" class="btn-cerrar">&times;</button>
+      </div>
+      <div style="padding: 24px;">
+        <p style="color: var(--color-texto-secundario); font-size: 0.9rem; margin-bottom: 16px;">
+          "Como Empleado Quiero Poder hacer log in para acceder a los recursos de la compañía"
+        </p>
+
+        <form id="formularioLogin" onsubmit="return false;">
+          <div class="grupo-campo" style="margin-bottom: 14px;">
+            <label for="inputLoginUsuario">Usuario:</label>
+            <input type="text" id="inputLoginUsuario" class="input-estilizado" placeholder="ej. admin o empleado" required autocomplete="username">
+          </div>
+          <div class="grupo-campo" style="margin-bottom: 14px;">
+            <label for="inputLoginPassword">Contraseña:</label>
+            <input type="password" id="inputLoginPassword" class="input-estilizado" placeholder="Contraseña" required autocomplete="current-password">
+          </div>
+
+          <div id="mensajeErrorLogin" style="color: var(--color-peligro); font-size: 0.85rem; margin-bottom: 12px; display: none;"></div>
+
+          <button type="submit" id="btnEnviarLogin" class="btn-accion-primario" style="width: 100%; justify-content: center;">
+            <span>Iniciar Sesión</span>
+          </button>
+        </form>
+
+        <div style="margin-top: 20px; border-top: 1px solid var(--borde-tarjeta); padding-top: 14px;">
+          <span style="font-size: 0.8rem; color: var(--color-texto-secundario);">Cuentas predeterminadas para pruebas:</span>
+          <div class="botones-rapidos-login">
+            <button id="btnAutoLoginAdmin" class="btn-chip" type="button">👑 Admin (admin / admin123)</button>
+            <button id="btnAutoLoginEmpleado" class="btn-chip" type="button">👤 Empleado (empleado / empleado123)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE PREVISUALIZACION DE ARCHIVOS CSV (ENTREGA 1) -->
   <div id="modalPrevisualizacion" class="modal-fondo oculta">
     <div class="modal-contenido">
       <div class="modal-cabecera">

@@ -638,3 +638,182 @@ body {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ==========================================================================
+   ESTILOS ENTREGA 2: AUTENTICACIÓN, GESTIÓN DE USUARIOS Y AUDITORÍA
+   ========================================================================== */
+
+.barra-navegacion-pestanas {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.btn-pestana {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  background: var(--fondo-tarjeta);
+  border: 1px solid var(--borde-tarjeta);
+  border-radius: var(--radio-borde);
+  color: var(--color-texto-secundario);
+  font-family: var(--fuente-principal);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+
+.btn-pestana:hover {
+  color: var(--color-texto);
+  border-color: rgba(91, 192, 190, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-pestana.activo {
+  background: linear-gradient(135deg, rgba(91, 192, 190, 0.2), rgba(28, 37, 65, 0.8));
+  border-color: var(--color-primario);
+  color: var(--color-primario);
+  box-shadow: 0 4px 15px rgba(91, 192, 190, 0.25);
+}
+
+.badge-rol {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-rol-admin {
+  background: rgba(244, 208, 111, 0.2);
+  color: var(--color-acento);
+  border: 1px solid rgba(244, 208, 111, 0.4);
+}
+
+.badge-rol-empleado {
+  background: rgba(91, 192, 190, 0.2);
+  color: var(--color-primario);
+  border: 1px solid rgba(91, 192, 190, 0.4);
+}
+
+.panel-auth-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.info-usuario-activo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.formulario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.grupo-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.grupo-campo label {
+  font-size: 0.85rem;
+  color: var(--color-texto-secundario);
+  font-weight: 500;
+}
+
+.input-estilizado, .select-estilizado {
+  padding: 10px 14px;
+  background: #0d1633;
+  border: 1px solid var(--borde-tarjeta);
+  border-radius: 8px;
+  color: var(--color-texto);
+  font-family: var(--fuente-principal);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input-estilizado:focus, .select-estilizado:focus {
+  border-color: var(--color-primario);
+}
+
+.badge-accion {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: 'Consolas', monospace;
+}
+
+.badge-accion-login {
+  background: rgba(72, 187, 120, 0.15);
+  color: var(--color-exito);
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.badge-accion-usuario {
+  background: rgba(244, 208, 111, 0.15);
+  color: var(--color-acento);
+  border: 1px solid rgba(244, 208, 111, 0.3);
+}
+
+.badge-accion-migracion {
+  background: rgba(91, 192, 190, 0.15);
+  color: var(--color-primario);
+  border: 1px solid rgba(91, 192, 190, 0.3);
+}
+
+.badge-accion-otro {
+  background: rgba(141, 169, 196, 0.15);
+  color: var(--color-texto-secundario);
+  border: 1px solid rgba(141, 169, 196, 0.3);
+}
+
+.botones-rapidos-login {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--borde-tarjeta);
+  border-radius: 6px;
+  color: var(--color-texto-secundario);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-texto);
+}
+
+.aviso-seguridad-admin {
+  background: rgba(237, 137, 54, 0.12);
+  border: 1px solid rgba(237, 137, 54, 0.3);
+  color: #fbd38d;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
