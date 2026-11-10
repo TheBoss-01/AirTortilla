@@ -94,3 +94,4 @@ public class RegistroAuditoria {
         return "[" + fechaHora + "] (" + usuario + ") " + accion + " sobre " + entidad + ": " + detalles;
     }
 }
+

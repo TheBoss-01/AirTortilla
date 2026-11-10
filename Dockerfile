@@ -30,3 +30,4 @@ EXPOSE 8080
 VOLUME ["/app/salida"]
 
 ENTRYPOINT ["java", "-cp", "bin:lib/*", "com.airtortilla.Main"]
+

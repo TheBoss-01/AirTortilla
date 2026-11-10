@@ -84,3 +84,4 @@ public class PruebasEntrega2 {
         System.out.println("\n=== TODAS LAS PRUEBAS DE LA ENTREGA 2 HAN PASADO CON EXITO ===");
     }
 }
+

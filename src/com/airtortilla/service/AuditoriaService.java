@@ -35,3 +35,4 @@ public class AuditoriaService {
         return auditoriaDAO.listarPorUsuario(usuario);
     }
 }
+
