@@ -102,3 +102,60 @@ Este es el apartado más valorado en la asignatura:
 
 4. **¿Dónde se guardan los archivos generados y con qué nombre?**
    - *Respuesta:* En el directorio `salida/`. Respetan la regla `AirTortilla_XX_YYYY_MM_DD.csv`, donde `XX` es el código ISO (ej. `ES`, `FR`, `IT`, `GB`) y la fecha corresponde al año, mes y día de la reserva.
+
+
+---
+
+## 6. Novedades y Defensa de la Entrega 2 (Base de Datos Relacional)
+
+Esta sección recopila las justificaciones técnicas y preguntas clave para la defensa de la **Entrega 2**.
+
+### Mapa de Nuevas Clases y Arquitectura
+
+```text
+src/com/airtortilla/
+├── model/
+│   ├── RolUsuario.java               -> Enum con roles del sistema (ADMIN, EMPLEADO)
+│   ├── Usuario.java                  -> Entidad de usuario para US1 y US2
+│   └── RegistroAuditoria.java        -> Entidad de trazabilidad y seguridad para US3
+├── db/
+│   ├── ConexionBD.java               -> Gestor de conexión JDBC SQLite con auto-inicialización DDL
+│   ├── UsuarioDAO.java               -> Operaciones CRUD y validación segura de credenciales
+│   ├── AuditoriaDAO.java             -> Inserción y consulta inmutable de la bitácora
+│   └── ReservaDAO.java               -> Persistencia relacional de reservas por lotes (Batch)
+├── service/
+│   ├── AutenticacionService.java     -> Hash SHA-256, control de sesiones y RBAC
+│   ├── AuditoriaService.java         -> Fachada para registro uniforme de eventos
+│   └── MigracionRelacionalService.java -> Sincronización masiva de reservas CSV a BD
+└── test/
+    └── PruebasEntrega2.java          -> Suite automatizada de pruebas para las 3 User Stories
+```
+
+### Preguntas Clave para Defender la Entrega 2 ante el Profesor
+
+1. **¿Qué motor de base de datos se ha empleado para la migración por legislación y por qué?**
+   - *Respuesta:* Se ha empleado **SQLite mediante conector JDBC** (`org.sqlite.JDBC`). Proporciona un motor relacional completo (cumplimiento ACID, tipos de datos, índices, claves primarias y sintaxis SQL ANSI) sin obligar al profesor a tener un servidor externo (como MySQL o PostgreSQL) corriendo previamente en su máquina, garantizando máxima portabilidad.
+
+2. **¿Cómo se ha protegido la aplicación contra inyecciones SQL (SQL Injection)?**
+   - *Respuesta:* En todos los métodos de los DAOs (`UsuarioDAO`, `ReservaDAO`, `AuditoriaDAO`) se utiliza estrictamente `PreparedStatement` con parámetros tipados (`?`), evitando la concatenación directa de cadenas en sentencias SQL.
+
+3. **¿Cómo se almacenan las contraseñas para cumplir con la US1 (Login)?**
+   - *Respuesta:* No se almacenan en texto plano. Se calcula el hash criptográfico **SHA-256** mediante la biblioteca nativa `java.security.MessageDigest`. Durante el inicio de sesión se calcula el hash de la contraseña introducida y se compara contra el valor persistido en la tabla `usuarios`.
+
+4. **¿Cómo se restringe el alta de usuarios exclusivamente a Administradores (US2)?**
+   - *Respuesta:* Mediante control de acceso basado en roles (**RBAC**). En `AutenticacionService.darDeAltaUsuario(...)` se valida que el usuario de la sesión activa posea el rol `RolUsuario.ADMIN`. Si un empleado o un usuario no autenticado intenta realizar la petición, se lanza una `SecurityException` y el servidor HTTP devuelve un código de estado `403 Forbidden`.
+
+5. **¿Qué información se registra para cumplir con la trazabilidad (US3)?**
+   - *Respuesta:* La tabla `auditoria` almacena:
+     - `usuario`: Quién realizó la operación (o `ANONIMO` si falló la autenticación).
+     - `accion`: Tipo de evento (`LOGIN_EXITOSO`, `LOGIN_FALLIDO`, `ALTA_USUARIO`, `MIGRACION_BD_RELACIONAL`, etc.).
+     - `entidad`: Objeto afectado (`AUTENTICACION`, `USUARIO`, `RESERVAS`, `FICHERO`).
+     - `detalles`: Resumen textual de la modificación.
+     - `ip_origen`: IP del cliente o `TERMINAL`.
+     - `fecha_hora`: Marca de tiempo generada automáticamente por la base de datos (`CURRENT_TIMESTAMP`).
+
+6. **¿Por qué la persistencia de reservas es escalable ante grandes volúmenes de datos?**
+   - *Respuesta:* En `ReservaDAO.insertarLote(...)` se utiliza el mecanismo de **lotes JDBC (`addBatch()` y `executeBatch()`)** dentro de una **transacción explícita (`setAutoCommit(false)`)**. Esto reduce drásticamente el número de operaciones de escritura a disco de $N$ accesos individuales a una única operación en bloque atómica.
+
+7. **¿Dónde están ubicadas las consultas SQL solicitadas en el enunciado?**
+   - *Respuesta:* En el directorio `sql/`, dentro del archivo `sql/consultas.sql`. Contiene el DDL de todas las tablas e índices, datos iniciales y todas las consultas DML requeridas para login, altas, trazabilidad y particionado de reservas.
