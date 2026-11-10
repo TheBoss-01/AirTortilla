@@ -196,6 +196,44 @@ Para dar respuesta al interés de AirTortilla de confeccionar contenedores virtu
    - *Respuesta:* En el directorio `salida/`. Respetan la regla `AirTortilla_XX_YYYY_MM_DD.csv`, donde `XX` es el código ISO (ej. `ES`, `FR`, `IT`, `GB`) y la fecha corresponde al año, mes y día de la reserva.
 
 ---
+### Preguntas Específicas de la Entrega 2
+
+5. **¿Qué motor de base de datos se ha empleado para la migración por legislación y por qué?**
+   - *Respuesta:* Se ha empleado **SQLite mediante conector JDBC** (`org.sqlite.JDBC`). Ofrece un motor relacional completo (cumplimiento ACID, tipos de datos, índices, claves primarias y sintaxis SQL ANSI) que persiste en un archivo local (`airtortilla.db`) sin obligar al profesor a tener un servidor externo (como MySQL o PostgreSQL) corriendo previamente en su máquina, garantizando portabilidad absoluta.
+
+6. **¿Cómo se ha protegido la aplicación contra inyecciones SQL (SQL Injection)?**
+   - *Respuesta:* En todos los métodos de los DAOs (`UsuarioDAO`, `ReservaDAO`, `AuditoriaDAO`) se utiliza estrictamente `PreparedStatement` con parámetros posicionales tipados (`?`), evitando la concatenación directa de cadenas en sentencias SQL.
+
+7. **¿Cómo se almacenan las contraseñas para cumplir con la US1 (Login)?**
+   - *Respuesta:* No se almacenan en texto plano. Se calcula el hash criptográfico unidireccional **SHA-256** mediante la biblioteca nativa `java.security.MessageDigest`. Durante el inicio de sesión se calcula el hash de la contraseña introducida y se compara contra el valor persistido en la tabla `usuarios`.
+
+8. **¿Cómo se restringe el alta de usuarios exclusivamente a Administradores (US2)?**
+   - *Respuesta:* Mediante control de acceso basado en roles (**RBAC**). En `AutenticacionService.darDeAltaUsuario(...)` se valida que el usuario de la sesión activa posea el rol `RolUsuario.ADMIN`. Si un empleado o un usuario no autenticado intenta realizar la petición, se lanza una `SecurityException` y el servidor HTTP devuelve un código de estado `403 Forbidden`.
+
+9. **¿Qué información se registra para cumplir con la trazabilidad (US3)?**
+   - *Respuesta:* La tabla `auditoria` almacena:
+     - `usuario`: Quién realizó la operación (o `ANONIMO` si falló la autenticación).
+     - `accion`: Tipo de evento (`LOGIN_EXITOSO`, `LOGIN_FALLIDO`, `ALTA_USUARIO`, `MIGRACION_BD_RELACIONAL`, etc.).
+     - `entidad`: Objeto afectado (`AUTENTICACION`, `USUARIO`, `RESERVAS`, `FICHERO`).
+     - `detalles`: Resumen textual de la modificación.
+     - `ip_origen`: IP del cliente o `TERMINAL`.
+     - `fecha_hora`: Marca de tiempo generada automáticamente por la base de datos (`CURRENT_TIMESTAMP`).
+
+10. **¿Por qué la persistencia de reservas es escalable ante grandes volúmenes de datos?**
+    - *Respuesta:* En `ReservaDAO.insertarLote(...)` se utiliza el mecanismo de **lotes JDBC (`addBatch()` y `executeBatch()`)** dentro de una **transacción explícita (`setAutoCommit(false)`)**. Esto reduce drásticamente el número de operaciones de escritura a disco de $N$ accesos individuales a una única operación en bloque atómica.
+
+11. **¿Dónde están ubicadas las consultas SQL solicitadas en el enunciado?**
+    - *Respuesta:* En el directorio `sql/`, dentro del archivo [`sql/consultas.sql`](file:///sql/consultas.sql). Contiene el DDL de todas las tablas e índices, datos iniciales y todas las consultas DML requeridas para login, altas, trazabilidad y particionado de reservas.
+
+12. **¿Cómo se ejecutan las pruebas automatizadas de la Entrega 2?**
+    - *Respuesta:* Mediante la clase de prueba incluida [`PruebasEntrega2.java`](file:///src/com/airtortilla/test/PruebasEntrega2.java) con el comando:
+      ```bash
+      java -cp "bin;lib/*" com.airtortilla.test.PruebasEntrega2
+      ```
+      Este script ejecuta automáticamente tests de login con éxito y fallo, intentos no autorizados de alta de usuario por empleados, verificación de registros de auditoría y prueba de migración relacional.
+
+
+---
 
 ### Preguntas Específicas de la Entrega 2
 
