@@ -10,3 +10,5 @@ out/
 .project
 .classpath
 .DS_Store
+*.db
+*.db-journal
