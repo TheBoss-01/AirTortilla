@@ -63,3 +63,83 @@ Para la ordenación de las entidades `Reserva` se implementa MergeSort (Ordenaci
 - **Lenguaje:** Java (SE 17 o superior)
 - **Control de versiones:** Git
 - **Restricción de datos:** Los ficheros CSV de datos no forman parte del repositorio (`.gitignore`).
+
+---
+
+## 6. Entrega 2: Migración a Base de Datos Relacional y Control de Acceso
+
+En esta segunda entrega se da respuesta a las nuevas obligaciones legales y de seguridad de AirTortilla, implementando la persistencia en una Base de Datos Relacional, autenticación por roles, alta de usuarios y trazabilidad inmutable.
+
+### 6.1. Desglose de User Stories en Tareas Medibles
+
+En conformidad con el objetivo de convertir las User Stories en un conjunto de tareas medibles, se establece el siguiente desglose de trabajo:
+
+| ID Tarea | User Story Relacionada | Descripción de la Tarea Técnica | Criterio de Aceptación Medible | Estado |
+| :--- | :--- | :--- | :--- | :---: |
+| **T2.1** | **US1 (Empleado)**: Poder hacer log in para acceder a recursos | Creación de tabla `usuarios`, servicio `AutenticacionService` con hash SHA-256 y endpoint `POST /api/auth/login`. | El empleado inicia sesión con sus credenciales y se valida su rol y estado activo. | **Completada** |
+| **T2.2** | **US2 (Admin)**: Dar de alta usuarios para garantizar seguridad | Implementación de `UsuarioDAO.insertar`, validación de unicidad de username y restricción exclusiva al rol `ADMIN`. | Un usuario no admin recibe `403 Forbidden`; un admin registra nuevos usuarios exitosamente. | **Completada** |
+| **T2.3** | **US3 (Admin)**: Mantener trazabilidad de las modificaciones | Creación de tabla `auditoria` y servicio `AuditoriaService` para registrar automáticamente accesos, altas y migraciones. | Cada evento clave guarda: fecha/hora, usuario, acción, entidad, detalles e IP de origen. | **Completada** |
+| **T2.4** | **Legislación BD**: Migración a Base de Datos Relacional | Creación de tabla `reservas`, servicio `MigracionRelacionalService` y script SQL centralizado. | Las reservas se migran e indexan en SQLite preservando integridad y ordenación. | **Completada** |
+| **T2.5** | **Infraestructura**: Contenedor virtual para despliegues | Confección de `Dockerfile` multi-stage y `docker-compose.yml`. | La aplicación se compila y levanta en contenedor virtual accesible en el puerto 8080. | **Completada** |
+
+---
+
+### 6.2. Archivo Centralizado de Consultas SQL (`sql/consultas.sql`)
+
+Todas las definiciones DDL y sentencias DML se encuentran centralizadas en el archivo [`sql/consultas.sql`](file:///sql/consultas.sql), estructuradas en:
+1. **DDL de Tablas e Índices:**
+   - `usuarios`: Gestión de credenciales seguras (SHA-256), roles (`ADMIN`, `EMPLEADO`) y estado de actividad.
+   - `reservas`: Estructura relacional con claves primarias e índices en `(codigo_pais_destino, fecha_reserva)` y `localizador`.
+   - `auditoria`: Bitácora cronológica indexada para consultas de trazabilidad de seguridad.
+2. **DML de Autenticación y Operaciones:**
+   - Consultas parametrizadas para login, alta de usuario, inserción por lotes (`batch`) y consultas ordenadas equivalentes a la ordenación MergeSort.
+
+---
+
+### 6.3. Cuentas de Acceso Predeterminadas (Semilla)
+
+Al iniciar la aplicación por primera vez, el sistema genera automáticamente las credenciales de prueba en la base de datos relacional:
+
+| Rol | Usuario | Contraseña | Permisos |
+| :--- | :--- | :--- | :--- |
+| **ADMIN** | `admin` | `admin123` | Control total: Procesamiento, alta de usuarios (US2) y auditoría (US3). |
+| **EMPLEADO** | `empleado` | `empleado123` | Acceso operativo: Procesamiento de reservas y consulta de ficheros. |
+
+---
+
+### 6.4. Novedades en la Interfaz de Usuario y API REST
+
+1. **Pestañas de Navegación:**
+   - **✈ Procesamiento:** Flujo existente de modalidad Total y Línea a Línea, ahora con persistencia automática en base de datos.
+   - **👥 Gestión de Usuarios (US2):** Formulario de alta rápida y tabla en vivo de usuarios registrados (restringido a administradores).
+   - **🛡 Trazabilidad y Seguridad (US3):** Histórico de eventos de auditoría en tiempo real con detalle de usuario, acción, entidad y marcas de tiempo.
+   - **🗄 Migración Relacional:** Panel con estado del motor SQL y botón de sincronización directa CSV ➔ SQLite.
+2. **Modal de Login (US1):**
+   - Modal flotante con selector de credenciales y botones de autorelleno para agilizar las pruebas del profesor.
+3. **Consola y CLI:**
+   - El menú de terminal (`Main.java`) incorpora opciones para autenticación, alta de usuarios, consulta de bitácora y sincronización relacional.
+
+---
+
+### 6.5. Despliegue en Contenedores Virtuales (Docker)
+
+Para facilitar los despliegues de la aplicación sin dependencias locales:
+
+```bash
+# Construir y levantar el contenedor con Docker Compose
+docker-compose up --build -d
+
+# Acceder a la interfaz web
+http://localhost:8080
+```
+
+---
+
+### 6.6. Verificación Automatizada
+
+Se incluye la clase [`PruebasEntrega2.java`](file:///src/com/airtortilla/test/PruebasEntrega2.java) para validar de manera desatendida todos los requisitos:
+
+```bash
+# Ejecutar verificación de la Entrega 2
+java -cp "bin;lib/*" com.airtortilla.test.PruebasEntrega2
+```
