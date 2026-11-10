@@ -85,11 +85,11 @@ public class ConexionBD {
         String idxAuditoria = "CREATE INDEX IF NOT EXISTS idx_auditoria_fecha ON auditoria(fecha_hora DESC);";
 
         // Admin: 'admin123' (SHA-256: 240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9)
-        // Empleado: 'empleado123' (SHA-256: 5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5)
+        // Empleado: 'empleado123' (SHA-256: ccc13e8ab0819e3ab61719de4071ecae6c1d3cd35dc48b91cad3481f20922f9f)
         String seedUsuarios = "INSERT OR IGNORE INTO usuarios (username, password_hash, rol, nombre_completo, activo) " +
                 "VALUES " +
                 "('admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'ADMIN', 'Administrador del Sistema', 1), " +
-                "('empleado', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5', 'EMPLEADO', 'Carlos Empleado', 1);";
+                "('empleado', 'ccc13e8ab0819e3ab61719de4071ecae6c1d3cd35dc48b91cad3481f20922f9f', 'EMPLEADO', 'Carlos Empleado', 1);";
 
         try (Statement stmt = conexion.createStatement()) {
             stmt.execute(ddlUsuarios);
